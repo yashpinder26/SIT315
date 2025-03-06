@@ -1,14 +1,37 @@
 const int motionSensorPin = 2;
-const int pingPin = 4;
+const int pingPin = 3;
 const int ledPin = 9;
 
 volatile bool motionDetected = false;
+volatile bool echoReceived = false;
+volatile unsigned long startTime = 0;
+volatile unsigned long travelTime = 0;
 
 void motionISR() {
   motionDetected = true;
 }
 
-long readUltrasonicDistance() {
+void ultrasonicISR() {
+  if (digitalRead(pingPin) == HIGH) {
+    startTime = micros();
+  } else {
+    travelTime = micros() - startTime;
+    echoReceived = true;
+  }
+}
+
+void setup() {
+  pinMode(motionSensorPin, INPUT);
+  pinMode(pingPin, OUTPUT);
+  pinMode(ledPin, OUTPUT);
+
+  attachInterrupt(digitalPinToInterrupt(motionSensorPin), motionISR, RISING);
+  attachInterrupt(digitalPinToInterrupt(pingPin), ultrasonicISR, CHANGE);
+
+  Serial.begin(9600);
+}
+
+void loop() {
   pinMode(pingPin, OUTPUT);
   digitalWrite(pingPin, LOW);
   delayMicroseconds(2);
@@ -16,19 +39,7 @@ long readUltrasonicDistance() {
   delayMicroseconds(5);
   digitalWrite(pingPin, LOW);
   pinMode(pingPin, INPUT);
-  long duration = pulseIn(pingPin, HIGH);
-  long distance = duration * 0.034 / 2;
-  return distance;
-}
 
-void setup() {
-  pinMode(motionSensorPin, INPUT);
-  pinMode(ledPin, OUTPUT);
-  attachInterrupt(digitalPinToInterrupt(motionSensorPin), motionISR, RISING);
-  Serial.begin(9600);
-}
-
-void loop() {
   if (motionDetected) {
     Serial.println("Motion detected!");
     for (int i = 0; i < 3; i++) {
@@ -39,9 +50,14 @@ void loop() {
     }
     motionDetected = false;
   }
-  long distance = readUltrasonicDistance();
-  Serial.print("Distance: ");
-  Serial.print(distance);
-  Serial.println(" cm");
+
+  if (echoReceived) {
+    long distance = travelTime * 0.034 / 2;
+    Serial.print("Distance: ");
+    Serial.print(distance);
+    Serial.println(" cm");
+    echoReceived = false;
+  }
+
   delay(500);
 }
