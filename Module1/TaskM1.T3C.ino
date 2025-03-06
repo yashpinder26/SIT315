@@ -1,6 +1,5 @@
 const int motionSensorPin = 2;
-const int pingPin = 3;
-const int ledPin = 9;
+const int ultrasonicPin = 3;
 
 volatile bool motionDetected = false;
 volatile bool echoReceived = false;
@@ -12,7 +11,7 @@ void motionISR() {
 }
 
 void ultrasonicISR() {
-  if (digitalRead(pingPin) == HIGH) {
+  if (digitalRead(ultrasonicPin) == HIGH) {
     startTime = micros();
   } else {
     travelTime = micros() - startTime;
@@ -22,32 +21,25 @@ void ultrasonicISR() {
 
 void setup() {
   pinMode(motionSensorPin, INPUT);
-  pinMode(pingPin, OUTPUT);
-  pinMode(ledPin, OUTPUT);
+  pinMode(ultrasonicPin, OUTPUT);
 
   attachInterrupt(digitalPinToInterrupt(motionSensorPin), motionISR, RISING);
-  attachInterrupt(digitalPinToInterrupt(pingPin), ultrasonicISR, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(ultrasonicPin), ultrasonicISR, CHANGE);
 
   Serial.begin(9600);
 }
 
 void loop() {
-  pinMode(pingPin, OUTPUT);
-  digitalWrite(pingPin, LOW);
+  pinMode(ultrasonicPin, OUTPUT);
+  digitalWrite(ultrasonicPin, LOW);
   delayMicroseconds(2);
-  digitalWrite(pingPin, HIGH);
+  digitalWrite(ultrasonicPin, HIGH);
   delayMicroseconds(5);
-  digitalWrite(pingPin, LOW);
-  pinMode(pingPin, INPUT);
+  digitalWrite(ultrasonicPin, LOW);
+  pinMode(ultrasonicPin, INPUT);
 
   if (motionDetected) {
     Serial.println("Motion detected!");
-    for (int i = 0; i < 3; i++) {
-      digitalWrite(ledPin, HIGH);
-      delay(200);
-      digitalWrite(ledPin, LOW);
-      delay(200);
-    }
     motionDetected = false;
   }
 
