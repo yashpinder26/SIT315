@@ -1,14 +1,10 @@
 #include <iostream>
 #include <vector>
-#include <ctime>
 #include <chrono>
 #include <pthread.h>
+#include <omp.h>
 
-#ifdef _OPENMP
-    #include <omp.h>
-#endif
-
-#define N 1000 // Matrix size 
+#define N 100 // Matrix size 
 #define NUM_THREADS 4
 
 using namespace std;
@@ -22,7 +18,6 @@ vector<vector<int>> C_openmp(N, vector<int>(N, 0));
 
 // Function to initialize matrices with random values
 void initialize_matrices() {
-    srand(time(0));
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
             A[i][j] = rand() % 10;
@@ -61,9 +56,7 @@ void* pthread_multiplication(void* arg) {
 
 // OpenMP Parallel Matrix Multiplication
 void openmp_multiplication() {
-    #ifdef _OPENMP
     #pragma omp parallel for num_threads(NUM_THREADS)
-    #endif
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
             for (int k = 0; k < N; k++) {
