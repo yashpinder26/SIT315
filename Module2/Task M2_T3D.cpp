@@ -85,12 +85,12 @@ void consumer(TrafficQueue& queue) {
                  return a.second > b.second; 
              });
 
-        // Display the top 5 congested traffic lights
-        cout << "\nTop 5 congested traffic lights:\n";
+        // Display the top 5 traffic lights
+        cout << "\nTop 5 traffic lights:\n";
         for (size_t i = 0; i < traffic_vector.size() && i < 5; ++i) {
-            cout << traffic_vector[i].first << ": " << traffic_vector[i].second << " cars passed\n";
+            cout << traffic_vector[i].first << ":- " << traffic_vector[i].second << " cars\n";
         }
-        cout << "----------------------------------\n";
+        cout << "________________________________________________________________\n";
     }
 }
 
